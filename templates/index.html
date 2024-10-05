@@ -4,9 +4,46 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.jpeg') }}">
     <title>Gráficos de Missão</title>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.min.css"> <!-- DataTables CSS -->
+    <script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script> <!-- DataTables JS -->
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.jpeg') }}">
+    <style>
+        /* Estilo para organizar os gráficos em 50% da tela */
+        #graphs {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+        .graph-container {
+            width: 48%; /* Define 50% menos um espaço para margens */
+            margin-bottom: 20px;
+        }
+
+        /* Estilo para as tabelas */
+        .data {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .data th, .data td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        .data th {
+            background-color: #f2f2f2;
+        }
+
+        /* Responsividade para telas menores */
+        @media (max-width: 768px) {
+            .graph-container {
+                width: 100%;
+            }
+        }
+    </style>
 </head>
 <body>
     <h1>Gráficos da Missão</h1>
@@ -26,7 +63,7 @@
 
     <div id="graphs">
         {% for graph in graph_json %}
-            <div id="graph_{{ loop.index }}"></div>
+            <div class="graph-container" id="graph_{{ loop.index }}"></div>
             <script>
                 var graphData = {{ graph | safe }};
                 Plotly.newPlot('graph_{{ loop.index }}', graphData.data, graphData.layout);
@@ -34,13 +71,24 @@
         {% endfor %}
     </div>
 
-    {% if averages %}
-        <h2>Médias de Tempo Relativo por Tipo de Evento</h2>
-        <ul>
-            <li>Impact MQ: {{ averages[0] or 'N/A' }}</li>
-            <li>Deep MQ: {{ averages[1] or 'N/A' }}</li>
-            <li>Shallow MQ: {{ averages[2] or 'N/A' }}</li>
-        </ul>
-    {% endif %}
+    <h2>Tabelas de Dados</h2>
+    <div id="graphs">
+        <div class="graph-container">
+            <h3>Todos os Dados</h3>
+            <div>{{ table_all_data | safe }}</div> <!-- Corrigido aqui -->
+        </div>
+        <div class="graph-container">
+            <h3>Dados Filtrados</h3>
+            <div>{{ table_filtered_data | safe }}</div> <!-- Corrigido aqui -->
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            $('.data').DataTable({
+                "pageLength": 10 // Define o número de linhas por página
+            });
+        });
+    </script>
 </body>
 </html>
