@@ -1,33 +1,46 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='favicon.jpeg') }}">
     <title>Gráficos de Missão</title>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
 </head>
 <body>
-    <h1>Selecione a Missão</h1>
+    <h1>Gráficos da Missão</h1>
+
     <form method="POST">
-        <select name="missao">
+        <label for="missao">Selecione a Missão:</label>
+        <select name="missao" id="missao">
             <option value="apollo">Apollo</option>
             <option value="mars">Mars</option>
         </select>
         <button type="submit">Gerar Gráficos</button>
     </form>
+
+    {% if error %}
+        <p>{{ error }}</p>
+    {% endif %}
+
     <div id="graphs">
         {% for graph in graph_json %}
-            <div id="graph-{{ loop.index }}"></div>
+            <div id="graph_{{ loop.index }}"></div>
             <script>
-                var graphData = JSON.parse(`{{ graph|tojson|safe }}`);
-                Plotly.newPlot('graph-{{ loop.index }}', graphData.data, graphData.layout);
+                var graphData = {{ graph | safe }};
+                Plotly.newPlot('graph_{{ loop.index }}', graphData.data, graphData.layout);
             </script>
         {% endfor %}
     </div>
+
     {% if averages %}
-        <h2>Médias dos Tempos Relativos</h2>
-        <p>Média Impact: {{ averages[0] }}</p>
-        <p>Média Deep: {{ averages[1] }}</p>
-        <p>Média Shallow: {{ averages[2] }}</p>
+        <h2>Médias de Tempo Relativo por Tipo de Evento</h2>
+        <ul>
+            <li>Impact MQ: {{ averages[0] or 'N/A' }}</li>
+            <li>Deep MQ: {{ averages[1] or 'N/A' }}</li>
+            <li>Shallow MQ: {{ averages[2] or 'N/A' }}</li>
+        </ul>
     {% endif %}
 </body>
 </html>
